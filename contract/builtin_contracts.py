@@ -4,7 +4,6 @@ from .base import check_decorator, Contract
 
 
 class Case(Contract):
-
     @classmethod
     def make(cls, node: ast.AST) -> ast.AST:
         if isinstance(node, ast.ClassDef):

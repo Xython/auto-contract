@@ -1,6 +1,6 @@
 import typing as t
-from auto_contract import perform
-import auto_contract
+from contract import perform
+import contract
 try:
     from .arg2 import *
 
@@ -47,7 +47,7 @@ class NamedList(metaclass=NamedListMeta):
     _root = True
 
 
-@auto_contract.Case
+@contract.Case
 class MyT(NamedList):
     a: int
     b: int
@@ -56,6 +56,6 @@ class MyT(NamedList):
 
 
 if __name__ == '__main__':
-    perform(__file__, auto_contract.Case)
+    perform(__file__, contract.Case)
 
-auto_contract.Other: t.Callable
+

@@ -3,6 +3,7 @@ from .base import Contract
 from .sym_ana import Tag, AnalyzedSymTable
 from typing import Type
 
+
 class ContractPerformer(ast.NodeTransformer):
     def __init__(self, *contracts: Type[Contract]):
         self.contracts = contracts

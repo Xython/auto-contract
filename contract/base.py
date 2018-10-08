@@ -3,7 +3,9 @@ import abc
 
 
 def check_decorator(node: ast.AST, contract_name: str):
-    if isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name) and node.value.id == 'contract':
+    if isinstance(node, ast.Attribute) and isinstance(
+            node.value, ast.Name) and node.value.id == 'contract':
+
         return node.attr == contract_name
     return False
 
@@ -16,19 +18,15 @@ class Contract(abc.ABC):
     @classmethod
     def predicate(cls, node: ast.AST) -> bool:
         cls_name = cls.__name__
-        if isinstance(node, ast.ClassDef):
+        if hasattr(node, 'decorator_list'):
             if any(
                     check_decorator(each, cls_name)
                     for each in node.decorator_list):
                 return True
+
         return False
 
     @classmethod
     @abc.abstractmethod
     def make(cls, node: ast.AST) -> ast.AST:
         raise NotImplementedError
-
-
-
-
-

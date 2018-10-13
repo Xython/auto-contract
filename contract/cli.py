@@ -7,6 +7,8 @@ cli = Talking()
 
 
 def _check_contract(it):
+    if it is Contract:
+        return False
     if isinstance(it, type):
         return issubclass(it, Contract)
     return isinstance(it, Contract)

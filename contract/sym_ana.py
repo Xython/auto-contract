@@ -1,5 +1,6 @@
 """
-code from https://github.com/Xython/YAPyPy/blob/master/yapypy/extended_python/symbol_analyzer.py
+Resolve Python symbols and their corresponding contexts.
+Code from https://github.com/Xython/YAPyPy/blob/master/yapypy/extended_python/symbol_analyzer.py.
 """
 
 import ast
@@ -40,8 +41,8 @@ class SymTable:
     analyzed: Optional[AnalyzedSymTable]
     cts: typing.Union[typing.Set[ContextType], typing.FrozenSet[ContextType]]
 
-    def __init__(self, requires: set, entered: set, explicit_nonlocals,
-                 explicit_globals, parent, children, depth, analyzed, cts):
+    def __init__(self, requires: set, entered: set, explicit_nonlocals, explicit_globals, parent, children, depth,
+                 analyzed, cts):
         self.requires = requires
         self.entered = entered
         self.explicit_nonlocals = explicit_nonlocals
@@ -54,47 +55,25 @@ class SymTable:
 
     @staticmethod
     def global_context():
-        return SymTable(
-            requires=set(),
-            entered=set(),
-            explicit_globals=set(),
-            explicit_nonlocals=set(),
-            parent=None,
-            children=[],
-            depth=0,
-            analyzed=None,
-            cts={ContextType.Module},
-        )
+        return SymTable(requires=set(), entered=set(), explicit_globals=set(), explicit_nonlocals=set(), parent=None,
+                children=[], depth=0, analyzed=None, cts={ContextType.Module}, )
 
     def enter_new(self):
-        new = SymTable(
-            requires=set(),
-            entered=set(),
-            explicit_globals=set(),
-            explicit_nonlocals=set(),
-            parent=self,
-            children=[],
-            depth=self.depth + 1,
-            cts=set(),
-            analyzed=None)
+        new = SymTable(requires=set(), entered=set(), explicit_globals=set(), explicit_nonlocals=set(), parent=self,
+                children=[], depth=self.depth + 1, cts=set(), analyzed=None)
 
         self.children.append(new)
         return new
 
     def can_resolve_by_parents(self, symbol: str):
-        return (symbol in self.analyzed.bounds
-                or self.parent and self.parent.can_resolve_by_parents(symbol))
+        return (symbol in self.analyzed.bounds or self.parent and self.parent.can_resolve_by_parents(symbol))
 
     def resolve_bounds(self):
         enters = self.entered
         nonlocals = self.explicit_nonlocals
         globals_ = self.explicit_globals
         # split bounds
-        bounds = {
-            each
-            for each in enters
-            if each not in nonlocals and each not in globals_
-        }
+        bounds = {each for each in enters if each not in nonlocals and each not in globals_}
         self.analyzed = AnalyzedSymTable(bounds, set(), set(), set())
         return bounds
 
@@ -103,22 +82,14 @@ class SymTable:
         requires = self.requires - enters
         nonlocals = self.explicit_nonlocals
         freevars = self.analyzed.freevars
-        freevars.update(
-            nonlocals.union({
-                each
-                for each in requires
-                if self.parent.can_resolve_by_parents(each)
-            }))
+        freevars.update(nonlocals.union({each for each in requires if self.parent.can_resolve_by_parents(each)}))
 
         return freevars
 
     def resolve_cellvars(self):
         def fetched_from_outside(sym_tb: SymTable):
-            return sym_tb.analyzed.freevars.union(
-                analyzed.borrowed_cellvars,
-                *(fetched_from_outside(each.analyze())
-                  for each in sym_tb.children),
-            )
+            return sym_tb.analyzed.freevars.union(analyzed.borrowed_cellvars,
+                    *(fetched_from_outside(each.analyze()) for each in sym_tb.children), )
 
         analyzed = self.analyzed
         cellvars = analyzed.cellvars
@@ -154,10 +125,7 @@ class SymTable:
 
     def show_resolution(self):
         def show_resolution(this):
-            return [
-                this.analyzed,
-                [show_resolution(each) for each in this.children]
-            ]
+            return [this.analyzed, [show_resolution(each) for each in this.children]]
 
         return pformat(show_resolution(self))
 
@@ -283,8 +251,7 @@ def _visit_ann_assign(self: 'ASTTagger', node: ast.AnnAssign):
     return node
 
 
-def _visit_fn_def(self: 'ASTTagger',
-                  node: Union[ast.FunctionDef, ast.AsyncFunctionDef]):
+def _visit_fn_def(self: 'ASTTagger', node: Union[ast.FunctionDef, ast.AsyncFunctionDef]):
     self.symtable.entered.add(node.name)
     args = node.args
     visit_suite(self.visit, node.decorator_list)
@@ -325,7 +292,6 @@ def _visit_lam(self: 'ASTTagger', node: ast.Lambda):
     if args.kwarg:
         arguments.append(args.kwarg)
     for arg in arguments:
-
         # lambda might be able to annotated in the future?
         annotation = arg.annotation
         if annotation:

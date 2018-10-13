@@ -2,28 +2,27 @@ import ast
 import abc
 
 
-def check_decorator(node: ast.AST, contract_name: str):
-    if isinstance(node, ast.Attribute) and isinstance(
-            node.value, ast.Name) and node.value.id == 'contract':
+def check_decorator(node: ast.AST, contract_name: str) -> bool:
+    ret = False
+    if isinstance(node, ast.Call):
+        func = node.func
+        if isinstance(func, ast.Name) and func.id == 'contract':
+            args = node.args
+            if len(args) is 1 and isinstance(args[0], ast.Name):
+                name = args[0]
+                ret = name.id == contract_name
 
-        return node.attr == contract_name
-    return False
+    return ret
 
 
 class Contract(abc.ABC):
-    def __new__(cls, f):
-        """作为装饰器被调用，但在运行模块中无实际语义"""
-        return f
-
     @classmethod
     def predicate(cls, node: ast.AST) -> bool:
         cls_name = cls.__name__
         if hasattr(node, 'decorator_list'):
-            if any(
-                    check_decorator(each, cls_name)
-                    for each in node.decorator_list):
-                return True
-
+            return any(
+                check_decorator(each, cls_name)
+                for each in node.decorator_list)
         return False
 
     @classmethod

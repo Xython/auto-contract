@@ -15,7 +15,6 @@ class ContractPerformer(ast.NodeTransformer):
         return self.syms[-1]
 
     def visit_tag(self, node: Tag):
-
         self.syms.append(node.tag.analyzed)
         node = self.visit(node.it)
         self.syms.pop()

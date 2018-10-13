@@ -1,11 +1,4 @@
-import typing as t
-from contract import perform
-import contract
-try:
-    from .arg2 import *
-
-except ImportError:
-    pass
+from contract import Case, contract
 
 
 class NamedListMeta(type):
@@ -47,15 +40,9 @@ class NamedList(metaclass=NamedListMeta):
     _root = True
 
 
-@contract.Case
+@contract(Case)
 class MyT(NamedList):
     a: int
     b: int
     c: int
     d: int
-
-
-if __name__ == '__main__':
-    perform(__file__, contract.Case)
-
-
